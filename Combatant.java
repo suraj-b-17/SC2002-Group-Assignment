@@ -27,6 +27,13 @@ public abstract class Combatant {
             System.out.println(name + " is protected by Smoke Bomb! 0 damage.");
             return;
         }
+        // Check Shield - absorbs one hit completely then is consumed
+        boolean hasShield = statusEffects.stream().anyMatch(e -> e instanceof ShieldEffect);
+        if (hasShield) {
+            System.out.printf("%s's Shield absorbs the hit! 0 damage.%n", name);
+            statusEffects.removeIf(e -> e instanceof ShieldEffect);
+            return;
+        }
         currentHp = Math.max(0, currentHp - damage);
     }
 

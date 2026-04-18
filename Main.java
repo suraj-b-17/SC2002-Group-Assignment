@@ -37,10 +37,13 @@ public class Main {
         System.out.println("Goblin  HP:55  ATK:35 DEF:15 SPD:25");
         System.out.println("Wolf    HP:40  ATK:45 DEF:5  SPD:35");
 
+        
         System.out.println("\n--- Items (choose 2, duplicates allowed) ---");
-        System.out.println("1) Potion      - Heal 100 HP (max HP capped)");
-        System.out.println("2) Power Stone - Trigger special skill for free (no cooldown change)");
-        System.out.println("3) Smoke Bomb  - Enemy attacks deal 0 damage this turn and next");
+        System.out.println("1) Potion       - Heal 100 HP (max HP capped)");
+        System.out.println("2) Power Stone  - Trigger special skill for free (no cooldown change)");
+        System.out.println("3) Smoke Bomb   - Enemy attacks deal 0 damage this turn and next");
+        System.out.println("4) Shield       - Absorb the next hit completely");
+        System.out.println("5) Poison Dart  - Poison a target for 3 turns (5 dmg/turn)");
         List<Item> items = chooseItems();
 
         System.out.println("\n--- Difficulty ---");
@@ -76,11 +79,14 @@ public class Main {
         List<Item> selected = new ArrayList<>();
         for (int i = 1; i <= 2; i++) {
             System.out.printf("Item selection %d:%n", i);
-            int choice = askInteger("Choose item (1-3)", 1, 3);
+            // Updated to support 5 items instead of 3
+            int choice = askInteger("Choose item (1-5)", 1, 5);
             switch (choice) {
                 case 1: selected.add(new Potion()); break;
                 case 2: selected.add(new PowerStone()); break;
-                default: selected.add(new SmokeBomb()); break;
+                case 3: selected.add(new SmokeBomb()); break;
+                case 4: selected.add(new Shield()); break;
+                default: selected.add(new PoisonDart()); break;
             }
         }
         return selected;
@@ -151,6 +157,9 @@ public class Main {
                 if (item instanceof Potion) clone.addItem(new Potion());
                 else if (item instanceof PowerStone) clone.addItem(new PowerStone());
                 else if (item instanceof SmokeBomb) clone.addItem(new SmokeBomb());
+                // Added Shield and PoisonDart handling
+                else if (item instanceof Shield) clone.addItem(new Shield());
+                else if (item instanceof PoisonDart) clone.addItem(new PoisonDart());
             }
             return clone;
         }
