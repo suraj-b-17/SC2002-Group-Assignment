@@ -14,7 +14,8 @@ public class Main {
             if (settings == null) {
                 settings = showHomeScreen();
             }
-            BattleEngine battle = new BattleEngine(settings.createPlayer(), settings.difficulty);
+            // Pass turn order strategy to BattleEngine
+            BattleEngine battle = new BattleEngine(settings.createPlayer(), settings.difficulty, settings.turnOrder);
             BattleOutcome outcome = battle.startBattle();
             printCompletionScreen(outcome, battle.getRoundCount(), battle);
             continueRunning = handlePostGame(settings);
@@ -37,7 +38,6 @@ public class Main {
         System.out.println("Goblin  HP:55  ATK:35 DEF:15 SPD:25");
         System.out.println("Wolf    HP:40  ATK:45 DEF:5  SPD:35");
 
-        
         System.out.println("\n--- Items (choose 2, duplicates allowed) ---");
         System.out.println("1) Potion       - Heal 100 HP (max HP capped)");
         System.out.println("2) Power Stone  - Trigger special skill for free (no cooldown change)");
@@ -60,14 +60,21 @@ public class Main {
             difficulty.createBackupEnemies().forEach(e -> System.out.println("  " + e.getStatusLine()));
         }
 
+        
+        System.out.println("\n--- Turn Order ---");
+        System.out.println("1) Speed Based - Higher speed goes first");
+        System.out.println("2) Random      - Turn order is randomized each round");
+        TurnOrderStrategy turnOrder = chooseTurnOrder();
+
         System.out.println("\n--- Your Setup ---");
         System.out.println("Hero: " + player.getName());
         System.out.println("Difficulty: " + difficulty.getDisplayName());
         System.out.print("Items: ");
         items.forEach(i -> System.out.print(i.getName() + " "));
         System.out.println();
+        System.out.println("Turn Order: " + (turnOrder instanceof SpeedBasedTurnOrder ? "Speed Based" : "Random"));
 
-        return new GameSettings(player, items, difficulty);
+        return new GameSettings(player, items, difficulty, turnOrder);
     }
 
     private static Player chooseCharacter() {
@@ -79,7 +86,6 @@ public class Main {
         List<Item> selected = new ArrayList<>();
         for (int i = 1; i <= 2; i++) {
             System.out.printf("Item selection %d:%n", i);
-            // Updated to support 5 items instead of 3
             int choice = askInteger("Choose item (1-5)", 1, 5);
             switch (choice) {
                 case 1: selected.add(new Potion()); break;
@@ -95,6 +101,12 @@ public class Main {
     private static Difficulty chooseDifficulty() {
         int choice = askInteger("Select difficulty (1-3)", 1, 3);
         return Difficulty.values()[choice - 1];
+    }
+
+    
+    private static TurnOrderStrategy chooseTurnOrder() {
+        int choice = askInteger("Choose turn order (1-2)", 1, 2);
+        return choice == 1 ? new SpeedBasedTurnOrder() : new RandomTurnOrder();
     }
 
     private static void printCompletionScreen(BattleOutcome outcome, int rounds, BattleEngine battle) {
@@ -143,12 +155,15 @@ public class Main {
         final Player player;
         final List<Item> items;
         final Difficulty difficulty;
+        // Added turn order field
+        final TurnOrderStrategy turnOrder;
         boolean newGameRequested = false;
 
-        GameSettings(Player player, List<Item> items, Difficulty difficulty) {
+        GameSettings(Player player, List<Item> items, Difficulty difficulty, TurnOrderStrategy turnOrder) {
             this.player = player;
             this.items = items;
             this.difficulty = difficulty;
+            this.turnOrder = turnOrder;
         }
 
         Player createPlayer() {
@@ -157,7 +172,6 @@ public class Main {
                 if (item instanceof Potion) clone.addItem(new Potion());
                 else if (item instanceof PowerStone) clone.addItem(new PowerStone());
                 else if (item instanceof SmokeBomb) clone.addItem(new SmokeBomb());
-                // Added Shield and PoisonDart handling
                 else if (item instanceof Shield) clone.addItem(new Shield());
                 else if (item instanceof PoisonDart) clone.addItem(new PoisonDart());
             }

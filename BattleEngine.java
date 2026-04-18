@@ -7,14 +7,17 @@ public class BattleEngine {
     private final Difficulty difficulty;
     private final List<Combatant> enemies = new ArrayList<>();
     private final List<Combatant> backupEnemies = new ArrayList<>();
-    private final TurnOrderStrategy turnOrderStrategy = new SpeedBasedTurnOrder();
+    // Changed from hardcoded SpeedBasedTurnOrder to accept any strategy
+    private final TurnOrderStrategy turnOrderStrategy;
     private final BattleUI ui;
     private int roundCount = 0;
     private boolean backupSpawned = false;
 
-    public BattleEngine(Player player, Difficulty difficulty) {
+    // Updated constructor to accept TurnOrderStrategy
+    public BattleEngine(Player player, Difficulty difficulty, TurnOrderStrategy turnOrderStrategy) {
         this.player = player;
         this.difficulty = difficulty;
+        this.turnOrderStrategy = turnOrderStrategy;
         this.ui = new BattleUI();
         enemies.addAll(difficulty.createInitialEnemies());
         backupEnemies.addAll(difficulty.createBackupEnemies());
@@ -143,8 +146,8 @@ public class BattleEngine {
     public boolean isBattleOver() {
         return player.isDefeated() || (getAliveEnemies().isEmpty() && backupEnemies.isEmpty());
     }
+
     public Combatant promptTarget() {
-    return ui.promptEnemyTarget(getAliveEnemies());
-    }   
-    
+        return ui.promptEnemyTarget(getAliveEnemies());
+    }
 }
