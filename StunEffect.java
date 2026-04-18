@@ -1,6 +1,6 @@
 public class StunEffect extends StatusEffect {
     public StunEffect() {
-        super(3);
+        super(2);
     }
 
     @Override
