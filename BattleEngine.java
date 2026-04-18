@@ -143,4 +143,8 @@ public class BattleEngine {
     public boolean isBattleOver() {
         return player.isDefeated() || (getAliveEnemies().isEmpty() && backupEnemies.isEmpty());
     }
+    public Combatant promptTarget() {
+    return ui.promptEnemyTarget(getAliveEnemies());
+    }   
+    
 }
